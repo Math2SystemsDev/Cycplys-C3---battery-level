@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <button id="connectBtn">Conectar ao Cycplus C3</button>
+    <p>Bateria: <span id="batteryLevel">--</span>%</p>
+
+<script>
+const batteryEl = document.getElementById("batteryLevel");
+const btn = document.getElementById("connectBtn");
+
+btn.onclick = async () => {
+    try {
+        const device = await navigator.bluetooth.requestDevice({
+            filters: [{ services: ['battery_service'] }],
+            optionalServices: ['battery_service']
+        });
+
+        const server = await device.gatt.connect();
+        const batteryService = await server.getPrimaryService('battery_service');
+        const batteryChar = await batteryService.getCharacteristic('battery_level');
+
+        const batteryValue = await batteryChar.readValue();
+        batteryEl.textContent = batteryValue.getUint8(0);
+
+        batteryChar.addEventListener('characteristicvaluechanged', e => {
+            batteryEl.textContent = e.target.value.getUint8(0);
+        });
+
+        await batteryChar.startNotifications();
+    } catch (err) {
+        console.error(err);
+    }
+};
+</script>
+</body>
+</html>
