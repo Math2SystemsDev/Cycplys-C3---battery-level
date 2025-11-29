@@ -11,8 +11,14 @@ const btn = document.getElementById("connectBtn");
 btn.onclick = async () => {
     try {
         const device = await navigator.bluetooth.requestDevice({
-            filters: [{ services: ['battery_service'] }],
-            optionalServices: ['battery_service']
+          filters: [
+            { services: ['cycling_speed_and_cadence'] },
+            { services: ['battery_service'] }
+          ],
+          optionalServices: [
+            'battery_service',
+            'cycling_speed_and_cadence'
+          ]
         });
 
         const server = await device.gatt.connect();
